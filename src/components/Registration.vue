@@ -53,7 +53,6 @@ export default {
       writer: false
     };
   },
-
   computed: {
     user() {
       return this.$store.getters.currentUser;
@@ -67,27 +66,20 @@ export default {
   },
   methods: {
     handleFocus() {
-      // console.log('focus')
-
       if (this.notUser) {
         this.$store.commit(SET_PASSWORD_NEW, false);
       }
-
       this.mailMessage = "";
       this.state = "";
       this.$store.commit(SET_NOT_USER, false);
     },
-
     handleSubmit(evt) {
       const reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
-      console.log("submit");
       if (reg.test(this.email) == false) {
-        //  this.email = ;
         this.mailMessage = "Введите корректный e-mail";
         this.state = "is-danger";
         return false;
       }
-
       if (this.passwordNew) {
         this.$store.dispatch(FETCH_SIGN, {
           email: this.email,
@@ -101,8 +93,6 @@ export default {
         });
         this.$store.commit(SET_PASSWORD_NEW, false);
       }
-
-      // this.$router.push("/");
     },
     handleClick() {
       this.mailMessage = "";

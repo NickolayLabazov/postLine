@@ -1,5 +1,3 @@
-//import { TagsService, ArticlesService } from "@/common/api.service";
-//import { FETCH_ARTICLES, FETCH_TAGS } from "./actions.type";
 import {
   SET_USERS,
   SET_POSTS,
@@ -9,8 +7,7 @@ import {
   SET_POST_TEXT,
   FETCH_USERS,
   FETCH_POSTS,
-  FETCH_CLAPS,
-  UPDATE_POSTS,
+  FETCH_CLAPS,  
   FETCH_POST_REMOVE,
   FETCH_UPDATE,
   FETCH_CREATE,
@@ -22,21 +19,15 @@ import {
   SET_USERSSIZE,
   FETCH_REG,
   SET_PASSWORD_NEW
-  
 } from "./mutations.type";
+
+const url = 'http://localhost:7070';
 
 const state = {
   users: null,
   currentUser: null,
   step: 0,
   usersSize: null,
-
-  /*  currentUser: {
-    "id": 1,
-    "login": "writer@mail.com",
-    "password": 123456,
-    "role": "writer"
-  },  */
   posts: null,
   update: false,
   currentPostId: null,
@@ -81,7 +72,7 @@ const getters = {
 
 const actions = {
   async [FETCH_USERS]({ commit }) {
-    const response = await fetch(`http://localhost:7070/users/`);
+    const response = await fetch(`${url}/users/`);
     if (!response.ok) {
       this.$store.dispatch(FETCH_USERS);
     }
@@ -89,57 +80,47 @@ const actions = {
     commit(SET_USERS, users);
   },
   async [FETCH_POSTS]({ commit }) {
-    const response = await fetch(`http://localhost:7070/posts/${state.step}`);
+    const response = await fetch(`${url}/posts/${state.step}`);
     if (!response.ok) {
       this.$store.dispatch(FETCH_POSTS);
     }
     const posts = await response.json();
     commit(SET_USERSSIZE, posts.size);
     commit(SET_POSTS, posts.posts);
-    
   },
   async [FETCH_CLAPS]({ commit }, id) {
-    //let updatePost = state.posts[0];
-    //let newClap = state.posts[0].claps + 1;
-    //console.log(newClack)
-    // console.log(updatePost)
-    const index = state.posts.indexOf(state.posts.filter(item => item.id == id)[0])    
-    const response = await fetch('http://localhost:7070/claps/', {
+    const index = state.posts.indexOf(state.posts.filter(item => item.id == id)[0])
+    const response = await fetch(`${url}/claps/`, {
       method: "PUT",
       headers: {
         "Content-type": "application/json"
       },
       body: JSON.stringify({
-        "index": index,
+        "id": id,
       }),
     });
     if (!response.ok) {
       this.$store.dispatch(FETCH_CLAPS);
-    } else {      
-      const post = await response.json(); 
-      console.log(post)    ;
-     let newPosts = state.posts.slice(0, index).concat(post).concat(state.posts.slice(index+1));
+    } else {
+      const post = await response.json();
+      let newPosts = state.posts.slice(0, index).concat(post).concat(state.posts.slice(index + 1));
       commit(SET_POSTS, newPosts)
     }
   },
   async [FETCH_POST_REMOVE]({ commit }, id) {
     const index = state.posts.indexOf(state.posts.filter(item => item.id == id)[0]);
-    console.log(index)
-    const response = await fetch(`http://localhost:7070/posts/${id}`, {
+    const response = await fetch(`${url}/posts/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) {
       this.$store.dispatch(FETCH_POSTS);
-    }else {              
-     let newPosts = state.posts.slice(0, index).concat(state.posts.slice(index+1));
+    } else {
+      let newPosts = state.posts.slice(0, index).concat(state.posts.slice(index + 1));
       commit(SET_POSTS, newPosts)
     }
-   // const posts = await response.json();
-   // commit(SET_POSTS, posts);
   },
-  async [FETCH_UPDATE]({ commit }, obj) {    
-    //console.log(time)    
-    const response = await fetch('http://localhost:7070/update/', {
+  async [FETCH_UPDATE]({ commit }, obj) {
+    const response = await fetch(`${url}/update/`, {
       method: "PUT",
       headers: {
         "Content-type": "application/json"
@@ -153,45 +134,36 @@ const actions = {
     });
     if (!response.ok) {
       this.$store.dispatch(FETCH_UPDATE, text);
-    } else {      
-      const post = await response.json(); 
+    } else {
+      const post = await response.json();
       const index = state.posts.indexOf(state.posts.filter(item => item.id == post.id)[0]);
-      console.log(post)    
-     const newPosts = state.posts.slice(0, index).concat(post).concat(state.posts.slice(index+1));
+      const newPosts = state.posts.slice(0, index).concat(post).concat(state.posts.slice(index + 1));
       commit(SET_POSTS, newPosts);
-      
     }
   },
-  async [FETCH_CREATE]({ commit }, obj) {    
-    //console.log(time)    
-    const response = await fetch('http://localhost:7070/create/', {
+  async [FETCH_CREATE]({ commit }, obj) {
+    const response = await fetch(`${url}/create/`, {
       method: "POST",
       headers: {
         "Content-type": "application/json"
       },
       body: JSON.stringify({
         "description": obj.text,
-        "title":  obj.title,
-        
+        "title": obj.title,
         "createdAt": obj.time,
         "userId": state.currentUser.id,
       }),
     });
     if (!response.ok) {
       this.$store.dispatch(FETCH_CREATE, obj);
-    } else {      
-      const post = await response.json(); 
-    //  const index = state.posts.indexOf(state.posts.filter(item => item.id == post.id)[0]);
-      console.log(post)    
-  //   const newPosts = state.posts.slice(0, index).concat(post).concat(state.posts.slice(index+1));
-       commit(SET_POSTS, state.posts.concat(post));
-      
+    } else {
+      const post = await response.json();
+      commit(SET_POSTS, state.posts.concat(post));
+
     }
   },
-  async [FETCH_SIGN]({ commit }, obj) {    
-    //console.log(time)    
-    const response = await fetch('http://localhost:7070/sign/', {
-   // const response = await fetch('http://localhost:7070/reg/', {
+  async [FETCH_SIGN]({ commit }, obj) {
+    const response = await fetch(`${url}/sign/`, {
       method: "POST",
       headers: {
         "Content-type": "application/json"
@@ -200,19 +172,18 @@ const actions = {
     });
     if (!response.ok) {
       this.$store.dispatch(FETCH_SIGN, obj);
-    } else {      
-      const user = await response.json(); 
-      if(user){
+    } else {
+      const user = await response.json();
+      if (user) {
         commit(SET_USER, user);
-      }else{
+      } else {
         commit(SET_NOT_USER, true);
       }
     }
   },
 
-  async [FETCH_REG]({ commit }, obj) {    
-    console.log('reg')    
-    const response = await fetch('http://localhost:7070/reg/', {
+  async [FETCH_REG]({ commit }, obj) {
+    const response = await fetch(`${url}/reg/`, {
       method: "POST",
       headers: {
         "Content-type": "application/json"
@@ -221,20 +192,15 @@ const actions = {
     });
     if (!response.ok) {
       this.$store.dispatch(FETCH_REG, obj);
-    } else {      
-      const resp = await response.json(); 
-      if(!resp){
+    } else {
+      const resp = await response.json();
+      if (!resp) {
         commit(SET_NOT_USER, true);
       }
       commit(SET_PASSWORD_NEW, true);
-     console.log(resp)
+      console.log(resp)
     }
   },
-
-
-
-  
-
 };
 
 /* eslint no-param-reassign: ["error", { "props": false }] */
@@ -244,58 +210,38 @@ const mutations = {
   },
   [SET_POSTS](state, posts) {
     state.posts = posts;
-    console.log(state.posts)
-  },
-  [UPDATE_POSTS](state, post, index) {
-    
-    //state.posts = state.posts.slice(0, index).concat(post).concat(state.posts.slice(index+1));
-    
+
   },
   [SET_UPDATE](state, value) {
     state.update = value;
-    console.log(state.update)
   },
   [SET_CURRENT_POST_ID](state, id) {
     state.currentPostId = id;
-    console.log(state.currentPostId)
   },
   [SET_POST_INPUT](state, input) {
     state.postInput = input;
-    console.log(state.postInput)
   },
   [SET_POST_TEXT](state, text) {
     state.postText = text;
-    console.log(state.postText)
   },
   [SET_USER](state, user) {
     state.currentUser = user;
-    console.log(state.currentUser)
   },
   [SET_NOT_USER](state, value) {
-    state.notUser = value;
-    console.log(state.notUser)
+    state.notUser = value;    
   },
   [INCREASE_STEP](state) {
     state.step = state.step + 1;
-    console.log(state.step)
   },
   [DECREASE_STEP](state) {
     state.step = state.step - 1;
-    console.log(state.step)
   },
   [SET_USERSSIZE](state, size) {
     state.usersSize = size;
-    console.log(state.usersSize)
   },
   [SET_PASSWORD_NEW](state, value) {
     state.passwordNew = value;
-    console.log(state.passwordNew)
   },
-
-
-  
-
-  
 };
 
 export default {
